@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Http\Resources\ProductResource;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -11,7 +12,14 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json($products);
+        return ProductResource::collection($products);
+    }
+
+    // Store a newly created product in storage.
+    public function store(Request $request)
+    {
+        $product = Product::create($request->all());
+        return new ProductResource($product);
     }
 
     // Display the specified product.
@@ -19,17 +27,10 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
         if ($product) {
-            return response()->json($product);
+            return new ProductResource($product);
         } else {
             return response()->json(['message' => 'Product not found'], 404);
         }
-    }
-
-    // Store a newly created product in storage.
-    public function store(Request $request)
-    {
-        $product = Product::create($request->all());
-        return response()->json($product, 201);
     }
 
     // Update the specified product in storage.
@@ -38,7 +39,7 @@ class ProductController extends Controller
         $product = Product::find($id);
         if ($product) {
             $product->update($request->all());
-            return response()->json($product);
+            return new ProductResource($product);
         } else {
             return response()->json(['message' => 'Product not found'], 404);
         }
@@ -50,7 +51,7 @@ class ProductController extends Controller
         $product = Product::find($id);
         if ($product) {
             $product->delete();
-            return response()->json(['message' => 'Product deleted']);
+            return response()->json(['message' => 'Product deleted successfully']);
         } else {
             return response()->json(['message' => 'Product not found'], 404);
         }
